@@ -1,4 +1,3 @@
-
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -8,167 +7,168 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Usuario {
-  usuCpf           String            @id @db.Char(14)
-  usuPrimeiroNome  String?           @db.VarChar(50)
-  usuNomeMeio      String?           @db.VarChar(50)
-  usuSobrenome     String?           @db.VarChar(50)
-  usuDataNascimento DateTime?
-  usuEmail         String?           @db.VarChar(100)
-  usuTelefone      String?           @db.VarChar(20)
-  usuSenha         String?           @db.VarChar(200)
+model TB_END_USUARIO {
+  EUS_ID        Int        @id @default(autoincrement())
+  EUS_CEP       String     @db.VarChar(10)
+  EUS_RUA       String     @db.VarChar(70)
+  EUS_NUMERO    String     @db.VarChar(10)
+  EUS_BAIRRO    String     @db.VarChar(50)
+  EUS_CIDADE    String     @db.VarChar(50)
+  EUS_UF        String     @db.Char(2)
+  EUS_COMPLEMENTO String?  @db.VarChar(100)
 
-  enderecos     EnderecoUsuario[]
-  cartoes       Cartao[]
-  recargas      Recarga[]
+  usuarios TB_USUARIO[]
 }
 
-model EnderecoUsuario {
-  eusId        Int      @id @default(autoincrement())
-  eusCep       String?  @db.VarChar(10)
-  eusNumero    String?  @db.VarChar(10)
-  eusRua       String?  @db.VarChar(100)
-  eusBairro    String?  @db.VarChar(50)
-  eusCidade    String?  @db.VarChar(50)
-  eusComplemento String? @db.VarChar(100)
+model TB_USUARIO {
+  USU_CPF          String    @id @db.VarChar(14)
+  USU_NOME_COMPLETO String   @db.VarChar(150)
+  USU_NOME_CARTAO  String?   @db.VarChar(40)
+  USU_TELEFONE     String?   @unique @db.VarChar(20)
+  USU_DT_NASC      DateTime  @db.Date
+  USU_EMAIL        String?   @unique @db.VarChar(60)
+  USU_SENHA        String    @db.VarChar(50)
+  EUS_ID           Int?
 
-  usuCpf       String   @db.Char(14)
-  usuario      Usuario  @relation(fields: [usuCpf], references: [usuCpf])
+  endereco         TB_END_USUARIO? @relation(fields: [EUS_ID], references: [EUS_ID])
+  cartoes          TB_CARTAO[]
+  recargas         TB_RECARGA[]
 }
 
-model Empresa {
-  empCnpj        String   @id @db.Char(18)
-  empRazaoSocial String?  @db.VarChar(100)
-  empEmail       String?  @db.VarChar(100)
-  empTelefone    String?  @db.VarChar(20)
-  empSite        String?  @db.VarChar(200)
-  empSenha       String?  @db.VarChar(200)
+model TB_STATUS_CARTAO {
+  SCA_ID   Int       @id @default(autoincrement())
+  SCA_NOME String    @db.VarChar(30)
 
-  enderecos EnderecoEmpresa[]
-  cartoes   Cartao[]
-  recargas  Recarga[]
+  cartoes  TB_CARTAO[]
 }
 
-model EnderecoEmpresa {
-  eemId        Int      @id @default(autoincrement())
-  eemCep       String?  @db.VarChar(10)
-  eemNumero    String?  @db.VarChar(10)
-  eemRua       String?  @db.VarChar(100)
-  eemBairro    String?  @db.VarChar(50)
-  eemCidade    String?  @db.VarChar(50)
-  eemComplemento String? @db.VarChar(100)
+model TB_TIPO_CARTAO {
+  TCA_ID   Int     @id @default(autoincrement())
+  TCA_NOME String  @db.VarChar(30)
 
-  empCnpj      String   @db.Char(18)
-  empresa      Empresa  @relation(fields: [empCnpj], references: [empCnpj])
+  cartoes  TB_CARTAO[]
 }
 
-model TipoCartao {
-  tcaId    Int      @id @default(autoincrement())
-  tcaNome  String   @db.VarChar(50)
+model TB_END_PONTO_FISICO {
+  EPF_ID          Int      @id @default(autoincrement())
+  EPF_CEP         String   @db.VarChar(10)
+  EPF_RUA         String   @db.VarChar(70)
+  EPF_NUMERO      String   @db.VarChar(10)
+  EPF_BAIRRO      String   @db.VarChar(50)
+  EPF_CIDADE      String   @db.VarChar(50)
+  EPF_UF          String   @db.Char(2)
+  EPF_COMPLEMENTO String?  @db.VarChar(100)
 
-  cartoes  Cartao[]
+  pontosFisicos TB_PONTO_FISICO[]
 }
 
-model StatusCartao {
-  scaId    Int      @id @default(autoincrement())
-  scaNome  String   @db.VarChar(50)
+model TB_PONTO_FISICO {
+  PFI_ID         Int      @id @default(autoincrement())
+  PFI_NOME       String   @db.VarChar(50)
+  PFI_EMAIL      String?  @unique @db.VarChar(60)
+  PFI_TELEFONE_1 String?  @unique @db.VarChar(20)
+  PFI_TELEFONE_2 String?  @unique @db.VarChar(20)
+  EPF_ID         Int?
 
-  cartoes  Cartao[]
+  endereco TB_END_PONTO_FISICO? @relation(fields: [EPF_ID], references: [EPF_ID])
+  cartoes  TB_CARTAO[]
 }
 
-model Cartao {
-  carNumero        String     @id @db.VarChar(20)
-  carCodigo        String?    @db.VarChar(20)
-  carDtCriacao     DateTime?
-  carDtRevalidacao DateTime?
-  carSaldo         Float?
+model TB_END_EMPRESA {
+  EEM_ID           Int      @id @default(autoincrement())
+  EEM_CEP          String   @db.VarChar(10)
+  EEM_RUA          String   @db.VarChar(70)
+  EEM_NUMERO       String   @db.VarChar(10)
+  EEM_BAIRRO       String   @db.VarChar(50)
+  EEM_CIDADE       String   @db.VarChar(50)
+  EEM_UF           String   @db.Char(2)
+  EEM_COMPLEMENTO  String?  @db.VarChar(100)
 
-  tcaId            Int?
-  scaId            Int?
-  usuCpf           String? @db.Char(14)
-  empCnpj          String? @db.Char(18)
-
-  tipoCartao       TipoCartao?   @relation(fields: [tcaId], references: [tcaId])
-  statusCartao     StatusCartao? @relation(fields: [scaId], references: [scaId])
-  usuario          Usuario?      @relation(fields: [usuCpf], references: [usuCpf])
-  empresa          Empresa?      @relation(fields: [empCnpj], references: [empCnpj])
-
-  historicoUsos    HistoricoUso[]
-  recargas         Recarga[]
+  empresas TB_EMPRESA[]
 }
 
-model PontoFisico {
-  pfiId      Int     @id @default(autoincrement())
-  pfiNome    String? @db.VarChar(100)
-  pfiEmail   String? @db.VarChar(100)
-  pfiTelefone1 String? @db.VarChar(20)
-  pfiTelefone2 String? @db.VarChar(20)
+model TB_EMPRESA {
+  EMP_CNPJ        String   @id @db.VarChar(20)
+  EMP_RAZAO_SOCIAL String  @db.VarChar(70)
+  EMP_EMAIL        String? @unique @db.VarChar(60)
+  EMP_TELEFONE     String? @unique @db.VarChar(20)
+  EMP_SITE         String? @db.VarChar(70)
+  EMP_SENHA        String  @db.VarChar(50)
+  EEM_ID           Int?
 
-  enderecos EnderecoPontoFisico[]
+  endereco TB_END_EMPRESA? @relation(fields: [EEM_ID], references: [EEM_ID])
+  cartoes  TB_CARTAO[]
+  recargas TB_RECARGA[]
 }
 
-model EnderecoPontoFisico {
-  epfId        Int      @id @default(autoincrement())
-  epfCep       String?  @db.VarChar(10)
-  epfNumero    String?  @db.VarChar(10)
-  epfRua       String?  @db.VarChar(100)
-  epfBairro    String?  @db.VarChar(50)
-  epfCidade    String?  @db.VarChar(50)
-  epfComplemento String? @db.VarChar(100)
+model TB_CARTAO {
+  CAR_NUMERO        String   @id @db.VarChar(16)
+  CAR_CODIGO        String   @db.VarChar(3)
+  CAR_DT_CRIACAO    DateTime? @db.Date
+  CAR_DT_REVALIDACAO DateTime? @db.Date
+  CAR_SALDO         Decimal?  @db.Decimal(8,2)
+  TCA_ID            Int?
+  SCA_ID            Int?
+  PFI_ID            Int?
+  EMP_CNPJ          String?   @db.VarChar(20)
+  USU_CPF           String?   @db.VarChar(14)
 
-  pfiId        Int
-  pontoFisico  PontoFisico @relation(fields: [pfiId], references: [pfiId])
+  tipoCartao    TB_TIPO_CARTAO? @relation(fields: [TCA_ID], references: [TCA_ID])
+  statusCartao  TB_STATUS_CARTAO? @relation(fields: [SCA_ID], references: [SCA_ID])
+  pontoFisico   TB_PONTO_FISICO? @relation(fields: [PFI_ID], references: [PFI_ID])
+  empresa       TB_EMPRESA? @relation(fields: [EMP_CNPJ], references: [EMP_CNPJ])
+  usuario       TB_USUARIO? @relation(fields: [USU_CPF], references: [USU_CPF])
+
+  historicos    TB_HISTORICO_USO[]
+  recargas      TB_RECARGA[]
 }
 
-model HistoricoUso {
-  hisId        Int      @id @default(autoincrement())
-  hisDataHora  DateTime?
-  hisValor     Float?
-  hisLinhaOnibus String? @db.VarChar(50)
+model TB_STATUS_RECARGA {
+  SRE_ID    Int     @id @default(autoincrement())
+  SRE_NOME  String  @db.VarChar(20)
 
-  carNumero    String
-  cartao       Cartao  @relation(fields: [carNumero], references: [carNumero])
+  recargas  TB_RECARGA[]
 }
 
+model TB_TIPO_REALIZADOR {
+  TRE_ID    Int     @id @default(autoincrement())
+  TRE_NOME  String  @db.VarChar(20)
 
-model StatusRecarga {
-  sreId    Int      @id @default(autoincrement())
-  sreNome  String   @db.VarChar(50)
-
-  recargas Recarga[]
+  recargas  TB_RECARGA[]
 }
 
-model FormaPagamento {
-  fpaId    Int      @id @default(autoincrement())
-  fpaNome  String   @db.VarChar(50)
+model TB_FORMA_PAGAMENTO {
+  FPA_ID    Int     @id @default(autoincrement())
+  FPA_NOME  String  @db.VarChar(20)
 
-  recargas Recarga[]
+  recargas  TB_RECARGA[]
 }
 
-model TipoRealizador {
-  treId    Int      @id @default(autoincrement())
-  treNome  String   @db.VarChar(50)
+model TB_RECARGA {
+  REC_ID       Int       @id @default(autoincrement())
+  REC_DATA_HORA DateTime @db.DateTime
+  REC_VALOR    Decimal   @db.Decimal(8,2)
+  USU_CPF      String?   @db.VarChar(14)
+  EMP_CNPJ     String?   @db.VarChar(20)
+  CAR_NUMERO   String?   @db.VarChar(16)
+  SRE_ID       Int?
+  TRE_ID       Int?
+  FPA_ID       Int?
 
-  recargas Recarga[]
+  usuario        TB_USUARIO?        @relation(fields: [USU_CPF], references: [USU_CPF])
+  empresa        TB_EMPRESA?        @relation(fields: [EMP_CNPJ], references: [EMP_CNPJ])
+  cartao         TB_CARTAO?         @relation(fields: [CAR_NUMERO], references: [CAR_NUMERO])
+  statusRecarga  TB_STATUS_RECARGA? @relation(fields: [SRE_ID], references: [SRE_ID])
+  tipoRealizador TB_TIPO_REALIZADOR? @relation(fields: [TRE_ID], references: [TRE_ID])
+  formaPagamento TB_FORMA_PAGAMENTO? @relation(fields: [FPA_ID], references: [FPA_ID])
 }
 
-model Recarga {
-  recId              Int       @id @default(autoincrement())
-  recDataHoraPedido  DateTime?
-  recValor           Float?
-  recDataHora        DateTime?
+model TB_HISTORICO_USO {
+  HIS_ID         Int       @id @default(autoincrement())
+  HIS_DATA_HORA  DateTime  @db.DateTime
+  HIS_VALOR      Decimal   @db.Decimal(4,2)
+  HIS_LINHA_ONIBUS String  @db.VarChar(50)
+  CAR_NUMERO     String
 
-  usuCpf             String?  @db.Char(14)
-  empCnpj            String?  @db.Char(18)
-  carNumero          String?  @db.VarChar(20)
-  sreId              Int?
-  treId              Int?
-  fpaId              Int?
-
-  usuario            Usuario?        @relation(fields: [usuCpf], references: [usuCpf])
-  empresa            Empresa?        @relation(fields: [empCnpj], references: [empCnpj])
-  cartao             Cartao?         @relation(fields: [carNumero], references: [carNumero])
-  statusRecarga      StatusRecarga?  @relation(fields: [sreId], references: [sreId])
-  tipoRealizador     TipoRealizador? @relation(fields: [treId], references: [treId])
-  formaPagamento     FormaPagamento? @relation(fields: [fpaId], references: [fpaId])
+  cartao TB_CARTAO @relation(fields: [CAR_NUMERO], references: [CAR_NUMERO])
 }

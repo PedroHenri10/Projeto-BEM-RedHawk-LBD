@@ -1,5 +1,13 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
 
-export const prisma = new PrismaClient({
-  log: ["query", "warn", "error"],
-});
+let prisma;
+
+if (!global.prisma) {
+  global.prisma = new PrismaClient({
+    log: ['query', 'info', 'warn', 'error'],
+  });
+}
+
+prisma = global.prisma;
+
+export default prisma;
