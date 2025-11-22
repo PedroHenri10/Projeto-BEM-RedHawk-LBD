@@ -1,14 +1,174 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
-}
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Usuario {
+  usuCpf           String            @id @db.Char(14)
+  usuPrimeiroNome  String?           @db.VarChar(50)
+  usuNomeMeio      String?           @db.VarChar(50)
+  usuSobrenome     String?           @db.VarChar(50)
+  usuDataNascimento DateTime?
+  usuEmail         String?           @db.VarChar(100)
+  usuTelefone      String?           @db.VarChar(20)
+  usuSenha         String?           @db.VarChar(200)
+
+  enderecos     EnderecoUsuario[]
+  cartoes       Cartao[]
+  recargas      Recarga[]
+}
+
+model EnderecoUsuario {
+  eusId        Int      @id @default(autoincrement())
+  eusCep       String?  @db.VarChar(10)
+  eusNumero    String?  @db.VarChar(10)
+  eusRua       String?  @db.VarChar(100)
+  eusBairro    String?  @db.VarChar(50)
+  eusCidade    String?  @db.VarChar(50)
+  eusComplemento String? @db.VarChar(100)
+
+  usuCpf       String   @db.Char(14)
+  usuario      Usuario  @relation(fields: [usuCpf], references: [usuCpf])
+}
+
+model Empresa {
+  empCnpj        String   @id @db.Char(18)
+  empRazaoSocial String?  @db.VarChar(100)
+  empEmail       String?  @db.VarChar(100)
+  empTelefone    String?  @db.VarChar(20)
+  empSite        String?  @db.VarChar(200)
+  empSenha       String?  @db.VarChar(200)
+
+  enderecos EnderecoEmpresa[]
+  cartoes   Cartao[]
+  recargas  Recarga[]
+}
+
+model EnderecoEmpresa {
+  eemId        Int      @id @default(autoincrement())
+  eemCep       String?  @db.VarChar(10)
+  eemNumero    String?  @db.VarChar(10)
+  eemRua       String?  @db.VarChar(100)
+  eemBairro    String?  @db.VarChar(50)
+  eemCidade    String?  @db.VarChar(50)
+  eemComplemento String? @db.VarChar(100)
+
+  empCnpj      String   @db.Char(18)
+  empresa      Empresa  @relation(fields: [empCnpj], references: [empCnpj])
+}
+
+model TipoCartao {
+  tcaId    Int      @id @default(autoincrement())
+  tcaNome  String   @db.VarChar(50)
+
+  cartoes  Cartao[]
+}
+
+model StatusCartao {
+  scaId    Int      @id @default(autoincrement())
+  scaNome  String   @db.VarChar(50)
+
+  cartoes  Cartao[]
+}
+
+model Cartao {
+  carNumero        String     @id @db.VarChar(20)
+  carCodigo        String?    @db.VarChar(20)
+  carDtCriacao     DateTime?
+  carDtRevalidacao DateTime?
+  carSaldo         Float?
+
+  tcaId            Int?
+  scaId            Int?
+  usuCpf           String? @db.Char(14)
+  empCnpj          String? @db.Char(18)
+
+  tipoCartao       TipoCartao?   @relation(fields: [tcaId], references: [tcaId])
+  statusCartao     StatusCartao? @relation(fields: [scaId], references: [scaId])
+  usuario          Usuario?      @relation(fields: [usuCpf], references: [usuCpf])
+  empresa          Empresa?      @relation(fields: [empCnpj], references: [empCnpj])
+
+  historicoUsos    HistoricoUso[]
+  recargas         Recarga[]
+}
+
+model PontoFisico {
+  pfiId      Int     @id @default(autoincrement())
+  pfiNome    String? @db.VarChar(100)
+  pfiEmail   String? @db.VarChar(100)
+  pfiTelefone1 String? @db.VarChar(20)
+  pfiTelefone2 String? @db.VarChar(20)
+
+  enderecos EnderecoPontoFisico[]
+}
+
+model EnderecoPontoFisico {
+  epfId        Int      @id @default(autoincrement())
+  epfCep       String?  @db.VarChar(10)
+  epfNumero    String?  @db.VarChar(10)
+  epfRua       String?  @db.VarChar(100)
+  epfBairro    String?  @db.VarChar(50)
+  epfCidade    String?  @db.VarChar(50)
+  epfComplemento String? @db.VarChar(100)
+
+  pfiId        Int
+  pontoFisico  PontoFisico @relation(fields: [pfiId], references: [pfiId])
+}
+
+model HistoricoUso {
+  hisId        Int      @id @default(autoincrement())
+  hisDataHora  DateTime?
+  hisValor     Float?
+  hisLinhaOnibus String? @db.VarChar(50)
+
+  carNumero    String
+  cartao       Cartao  @relation(fields: [carNumero], references: [carNumero])
+}
+
+
+model StatusRecarga {
+  sreId    Int      @id @default(autoincrement())
+  sreNome  String   @db.VarChar(50)
+
+  recargas Recarga[]
+}
+
+model FormaPagamento {
+  fpaId    Int      @id @default(autoincrement())
+  fpaNome  String   @db.VarChar(50)
+
+  recargas Recarga[]
+}
+
+model TipoRealizador {
+  treId    Int      @id @default(autoincrement())
+  treNome  String   @db.VarChar(50)
+
+  recargas Recarga[]
+}
+
+model Recarga {
+  recId              Int       @id @default(autoincrement())
+  recDataHoraPedido  DateTime?
+  recValor           Float?
+  recDataHora        DateTime?
+
+  usuCpf             String?  @db.Char(14)
+  empCnpj            String?  @db.Char(18)
+  carNumero          String?  @db.VarChar(20)
+  sreId              Int?
+  treId              Int?
+  fpaId              Int?
+
+  usuario            Usuario?        @relation(fields: [usuCpf], references: [usuCpf])
+  empresa            Empresa?        @relation(fields: [empCnpj], references: [empCnpj])
+  cartao             Cartao?         @relation(fields: [carNumero], references: [carNumero])
+  statusRecarga      StatusRecarga?  @relation(fields: [sreId], references: [sreId])
+  tipoRealizador     TipoRealizador? @relation(fields: [treId], references: [treId])
+  formaPagamento     FormaPagamento? @relation(fields: [fpaId], references: [fpaId])
 }
