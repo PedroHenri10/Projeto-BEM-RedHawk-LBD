@@ -1,6 +1,5 @@
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -24,10 +23,10 @@ model TB_USUARIO {
   USU_CPF          String    @id @db.VarChar(14)
   USU_NOME_COMPLETO String   @db.VarChar(150)
   USU_NOME_CARTAO  String?   @db.VarChar(40)
-  USU_TELEFONE     String?   @unique @db.VarChar(20)
+  USU_TELEFONE     String   @unique @db.VarChar(20)
   USU_DT_NASC      DateTime  @db.Date
-  USU_EMAIL        String?   @unique @db.VarChar(60)
-  USU_SENHA        String    @db.VarChar(50)
+  USU_EMAIL        String   @unique @db.VarChar(60)
+  USU_SENHA        String    @db.VarChar(255)
   EUS_ID           Int?
 
   endereco         TB_END_USUARIO? @relation(fields: [EUS_ID], references: [EUS_ID])
@@ -65,7 +64,7 @@ model TB_END_PONTO_FISICO {
 model TB_PONTO_FISICO {
   PFI_ID         Int      @id @default(autoincrement())
   PFI_NOME       String   @db.VarChar(50)
-  PFI_EMAIL      String?  @unique @db.VarChar(60)
+  PFI_EMAIL      String  @unique @db.VarChar(60)
   PFI_TELEFONE_1 String?  @unique @db.VarChar(20)
   PFI_TELEFONE_2 String?  @unique @db.VarChar(20)
   EPF_ID         Int?
@@ -90,7 +89,7 @@ model TB_END_EMPRESA {
 model TB_EMPRESA {
   EMP_CNPJ        String   @id @db.VarChar(20)
   EMP_RAZAO_SOCIAL String  @db.VarChar(70)
-  EMP_EMAIL        String? @unique @db.VarChar(60)
+  EMP_EMAIL        String @unique @db.VarChar(60)
   EMP_TELEFONE     String? @unique @db.VarChar(20)
   EMP_SITE         String? @db.VarChar(70)
   EMP_SENHA        String  @db.VarChar(50)
