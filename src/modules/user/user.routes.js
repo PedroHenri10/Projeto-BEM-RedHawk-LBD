@@ -17,10 +17,10 @@ router.post("/recover-password", userController.recoverPassword);
 // RF004
 router.post("/logout", userController.logout);
 
-// RF005 - Protegida por autenticação
+// RF005
 router.put("/profile", auth, userController.updateProfile);
 
-// RF006 - Protegida por autenticação
+// RF006 
 router.get("/profile", auth, userController.getProfile);
 
 export default router;
