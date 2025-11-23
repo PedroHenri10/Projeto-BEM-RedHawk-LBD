@@ -31,7 +31,16 @@ const userController = {
     }
   },
 
- 
+  // RF003
+  recoverPassword: async (req, res) => {
+    try {
+      const { identifier, recoveryMethod } = req.body; 
+      const message = await userService.recoverPassword(identifier, recoveryMethod);
+      res.status(200).json({ message });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  },
 
   // RF004: O sistema deve permitir que o usuário encerre a sessão.
   logout: async (req, res) => {
