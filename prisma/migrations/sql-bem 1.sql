@@ -1,0 +1,536 @@
+-- ANA KAROLINY DE AZEVEDO SILVA
+-- PEDRO HENRIQUE NUNES OLIVEIRA
+-- VITOR HUGO DA SILVA BRITO
+
+CREATE DATABASE BEM;
+USE BEM;
+
+CREATE TABLE TB_END_USUARIO (
+    EUS_ID INT AUTO_INCREMENT,
+    EUS_CEP VARCHAR(10) NOT NULL,
+	EUS_RUA VARCHAR(70) NOT NULL,
+    EUS_NUMERO VARCHAR(10) NOT NULL,
+    EUS_BAIRRO VARCHAR(50) NOT NULL,
+    EUS_CIDADE VARCHAR(50) NOT NULL,
+	EUS_UF CHAR(2) NOT NULL,
+    EUS_COMPLEMENTO VARCHAR(100),
+    PRIMARY KEY (EUS_ID)
+);
+
+CREATE TABLE TB_USUARIO (
+    USU_CPF VARCHAR(14),
+    USU_NOME_COMPLETO VARCHAR(150) NOT NULL,
+	USU_NOME_CARTAO VARCHAR(40),
+    USU_TELEFONE VARCHAR(20) UNIQUE,
+    USU_DT_NASC DATE NOT NULL,
+    USU_EMAIL VARCHAR(60) UNIQUE,
+    USU_SENHA VARCHAR(50) NOT NULL,
+    EUS_ID INT,
+    PRIMARY KEY (USU_CPF),
+    FOREIGN KEY (EUS_ID) REFERENCES TB_END_USUARIO(EUS_ID)
+);
+
+CREATE TABLE TB_STATUS_CARTAO (
+    SCA_ID INT AUTO_INCREMENT,
+    SCA_NOME VARCHAR(30) NOT NULL,
+    PRIMARY KEY (SCA_ID)
+);
+
+CREATE TABLE TB_TIPO_CARTAO (
+    TCA_ID INT AUTO_INCREMENT,
+    TCA_NOME VARCHAR(30) NOT NULL,
+    PRIMARY KEY (TCA_ID)
+);
+
+CREATE TABLE TB_END_PONTO_FISICO (
+    EPF_ID INT AUTO_INCREMENT, 
+    EPF_CEP VARCHAR(10) NOT NULL,
+	EPF_RUA VARCHAR(70) NOT NULL,
+    EPF_NUMERO VARCHAR(10) NOT NULL,
+    EPF_BAIRRO VARCHAR(50) NOT NULL,
+    EPF_CIDADE VARCHAR(50) NOT NULL,
+    EPF_UF CHAR(2) NOT NULL,
+    EPF_COMPLEMENTO VARCHAR(100),
+    PRIMARY KEY (EPF_ID)
+);
+
+CREATE TABLE TB_PONTO_FISICO (
+    PFI_ID INT AUTO_INCREMENT,
+    PFI_NOME VARCHAR(50) NOT NULL,
+    PFI_EMAIL VARCHAR(60) UNIQUE,
+    PFI_TELEFONE_1 VARCHAR(20) UNIQUE,
+    PFI_TELEFONE_2 VARCHAR(20) UNIQUE,
+    EPF_ID INT,
+    PRIMARY KEY (PFI_ID),
+    FOREIGN KEY (EPF_ID) REFERENCES TB_END_PONTO_FISICO(EPF_ID)
+);
+
+CREATE TABLE TB_END_EMPRESA (
+    EEM_ID INT AUTO_INCREMENT,
+    EEM_CEP VARCHAR(10) NOT NULL,
+	EEM_RUA VARCHAR(70) NOT NULL,
+    EEM_NUMERO VARCHAR(10) NOT NULL,
+    EEM_BAIRRO VARCHAR(50) NOT NULL,
+    EEM_CIDADE VARCHAR(50) NOT NULL,
+    EEM_UF CHAR(2) NOT NULL,
+    EEM_COMPLEMENTO VARCHAR(100),
+    PRIMARY KEY (EEM_ID)
+);
+
+CREATE TABLE TB_EMPRESA (
+    EMP_CNPJ VARCHAR(20),
+    EMP_RAZAO_SOCIAL VARCHAR(70) NOT NULL,
+    EMP_EMAIL VARCHAR(60) UNIQUE,
+    EMP_TELEFONE VARCHAR(20) UNIQUE,
+    EMP_SITE VARCHAR(70),
+    EMP_SENHA VARCHAR(50) NOT NULL,
+    EEM_ID INT,
+    PRIMARY KEY (EMP_CNPJ),
+    FOREIGN KEY (EEM_ID) REFERENCES TB_END_EMPRESA(EEM_ID)
+);
+
+CREATE TABLE TB_CARTAO (
+    CAR_NUMERO VARCHAR(16),
+    CAR_CODIGO VARCHAR(3) NOT NULL,
+    CAR_DT_CRIACAO DATE,
+    CAR_DT_REVALIDACAO DATE,
+    CAR_SALDO DECIMAL(8,2),
+    TCA_ID INT,
+    SCA_ID INT,
+    PFI_ID INT,
+    EMP_CNPJ VARCHAR(20),
+    USU_CPF VARCHAR(14),
+    PRIMARY KEY (CAR_NUMERO),
+    FOREIGN KEY (TCA_ID) REFERENCES TB_TIPO_CARTAO(TCA_ID),
+    FOREIGN KEY (SCA_ID) REFERENCES TB_STATUS_CARTAO(SCA_ID),
+    FOREIGN KEY (PFI_ID) REFERENCES TB_PONTO_FISICO(PFI_ID),
+    FOREIGN KEY (EMP_CNPJ) REFERENCES TB_EMPRESA(EMP_CNPJ),
+    FOREIGN KEY (USU_CPF) REFERENCES TB_USUARIO(USU_CPF)
+);
+
+CREATE TABLE TB_STATUS_RECARGA (
+    SRE_ID INT AUTO_INCREMENT,
+    SRE_NOME VARCHAR(20) NOT NULL,
+    PRIMARY KEY (SRE_ID)
+);
+
+CREATE TABLE TB_TIPO_REALIZADOR (
+	TRE_ID INT AUTO_INCREMENT,
+    TRE_NOME VARCHAR(20) NOT NULL,
+    PRIMARY KEY (TRE_ID)
+);
+
+CREATE TABLE TB_FORMA_PAGAMENTO (
+    FPA_ID INT AUTO_INCREMENT,
+    FPA_NOME VARCHAR(20) NOT NULL,
+    PRIMARY KEY (FPA_ID)
+);
+
+CREATE TABLE TB_RECARGA (
+    REC_ID INT AUTO_INCREMENT,
+    REC_DATA_HORA DATETIME NOT NULL,
+    REC_VALOR DECIMAL(8,2) NOT NULL,
+    USU_CPF VARCHAR(14),
+    EMP_CNPJ VARCHAR(20),
+    CAR_NUMERO VARCHAR(16),
+    SRE_ID INT,
+    TRE_ID INT,
+    FPA_ID INT,
+    PRIMARY KEY (REC_ID),
+    FOREIGN KEY (USU_CPF) REFERENCES TB_USUARIO(USU_CPF),
+    FOREIGN KEY (EMP_CNPJ) REFERENCES TB_EMPRESA(EMP_CNPJ),
+    FOREIGN KEY (CAR_NUMERO) REFERENCES TB_CARTAO(CAR_NUMERO),
+    FOREIGN KEY (SRE_ID) REFERENCES TB_STATUS_RECARGA(SRE_ID),
+    FOREIGN KEY (TRE_ID) REFERENCES TB_TIPO_REALIZADOR(TRE_ID),
+    FOREIGN KEY (FPA_ID) REFERENCES TB_FORMA_PAGAMENTO(FPA_ID)
+);
+
+CREATE TABLE TB_HISTORICO_USO (
+    HIS_ID INT AUTO_INCREMENT,
+    HIS_DATA_HORA DATETIME NOT NULL,
+    HIS_VALOR DECIMAL(4,2) NOT NULL,
+    HIS_LINHA_ONIBUS VARCHAR(50) NOT NULL,
+    CAR_NUMERO VARCHAR(16),
+    PRIMARY KEY (HIS_ID),
+    FOREIGN KEY (CAR_NUMERO) REFERENCES TB_CARTAO(CAR_NUMERO)
+);
+
+INSERT INTO TB_TIPO_REALIZADOR (TRE_NOME) VALUES
+('PJ'),
+('PF');
+
+INSERT INTO TB_FORMA_PAGAMENTO (FPA_NOME) VALUES
+('Pix'),
+('Cartão de Crédito'),
+('Cartão de Débito'),
+('Boleto');
+
+INSERT INTO TB_TIPO_CARTAO (TCA_NOME) VALUES
+('Comum'),
+('Escolar'),
+('Vale-Transporte'),
+('Sênior');
+
+INSERT INTO TB_STATUS_CARTAO (SCA_ID, SCA_NOME) VALUES
+(1, 'Ativo'),
+(2, 'Cancelado'),
+(3, 'Bloqueado'),
+(4, 'Em análise'),
+(5, 'Pronto para coleta');
+
+INSERT INTO TB_STATUS_RECARGA (SRE_NOME) VALUES
+('Aprovada'),
+('Processando'),
+('Cancelada');
+
+INSERT INTO TB_END_PONTO_FISICO (EPF_CEP, EPF_NUMERO, EPF_RUA, EPF_BAIRRO, EPF_CIDADE, EPF_UF, EPF_COMPLEMENTO) VALUES
+('06529-001', '5297', 'Estrada Tenente Marques', 'Jardim do Luar (Fazendinha)', 'Santana de Parnaíba', 'SP', NULL);
+
+INSERT INTO TB_PONTO_FISICO (PFI_NOME, PFI_EMAIL, PFI_TELEFONE_1, PFI_TELEFONE_2, EPF_ID) VALUES
+('Unidade Poupatempo Fazendinha', 'pfatendimento@sp.gov.br', '(11) 4154-5191', '(11) 95220-2974', 1);
+
+INSERT INTO TB_END_EMPRESA (EEM_CEP, EEM_NUMERO, EEM_RUA, EEM_BAIRRO, EEM_CIDADE, EEM_UF, EEM_COMPLEMENTO) VALUES
+('06535-110', '1000', 'Avenida Yojiro Takaoka', 'Alphaville', 'Santana de Parnaíba', 'SP', 'Torre Empresarial A - Sala 1205');
+
+INSERT INTO TB_EMPRESA (EMP_CNPJ, EMP_RAZAO_SOCIAL, EMP_EMAIL, EMP_TELEFONE, EMP_SITE, EMP_SENHA, EEM_ID) VALUES
+('2512.345.678/0001-90', 'Bay Metrics LTDA', 'contato@baymetrics.com.br', '(11) 3181-8444', 'www.baymetrics.com.br', 'Senha@1234', 1);
+
+INSERT INTO TB_END_USUARIO (EUS_CEP, EUS_RUA, EUS_NUMERO, EUS_BAIRRO, EUS_CIDADE, EUS_UF, EUS_COMPLEMENTO) VALUES
+('01501-035', 'Rua do Diamante', '119', 'Refúgio dos Bandeirantes', 'Santana de Parnaíba', 'SP', NULL),
+('13113-098', 'Rua Vênus', '1246', 'Chácara Solar II', 'Santana de Parnaíba', 'SP', NULL);
+
+INSERT INTO TB_USUARIO (USU_CPF, USU_NOME_COMPLETO, USU_NOME_CARTAO, USU_TELEFONE, USU_DT_NASC, USU_EMAIL, USU_SENHA, EUS_ID) VALUES
+('474.371.265-12', 'Vitor Hugo da Silva Brito', 'VITOR HUGO DA SILVA BRITO', '(11)94312-2131', '2006-10-09', 'vitorbrito@gmail.com', '12345678', 1),
+('213.432.124-98', 'Ana Karoliny de Azevedo Silva', 'ANA KAROLINY DE A. SILVA', '(11)91341-1231', '2006-05-23', 'anasilva@gmail.com', '3434', 2);
+
+
+INSERT INTO TB_CARTAO (CAR_NUMERO, CAR_CODIGO, CAR_DT_CRIACAO, CAR_DT_REVALIDACAO, CAR_SALDO, TCA_ID, SCA_ID, PFI_ID, EMP_CNPJ, USU_CPF) VALUES
+-- Cartao escolar vitor brito
+('59.08.00002790-2', '848', '2024-10-01', '2025-02-02', '52.00', 1, 1, 1, NULL, '474.371.265-12'),
+-- Cartao comum vitor brito
+('59.06.00000012-9', '848', '2025-10-21', NULL, '8.00', 2, 1, 1, NULL, '474.371.265-12'),
+-- Cartao escolar ana silva
+('23.23.00002710-2', '848', '2024-10-01', '2025-02-02', '44.00', 3, 1, 1, NULL, '213.432.124-98'),
+-- Cartao VT ana silva
+('23.23.12341313-1', '848', '2025-03-01', NULL, '230.00', 4, 1, 1, '2512.345.678/0001-90', '213.432.124-98');
+select * from tb_cartao;
+
+INSERT INTO TB_HISTORICO_USO (HIS_DATA_HORA, HIS_VALOR, HIS_LINHA_ONIBUS, CAR_NUMERO) VALUES
+('2025-10-21 12:40:00', '4.50', '830-2 Fazendinha', '59.06.00000012-9'),
+('2025-10-21 13:20:00', '4.50', '801 - Refúgio dos Bandeirantes', '59.06.00000012-9'),
+('2025-10-22 07:40:00', '4.50', '801 - Refúgio dos Bandeirantes', '59.08.00002790-2'),
+('2025-10-22 08:00:00', '4.50', '830-2 Fazendinha', '59.08.00002790-2'),
+('2025-10-19 08:00:00', '4.50', '830-2 Fazendinha', '23.23.12341313-1');
+
+-- PROCEDURES
+
+-- INSERTS
+
+-- O sistema deve permitir o cadastro de novos usuários
+DELIMITER  $$
+CREATE PROCEDURE cadastrarUsuario (
+	IN p_cpf VARCHAR(14),
+    IN p_nome_completo VARCHAR(150),
+    IN p_nome_cartao VARCHAR(40),
+    IN p_telefone VARCHAR(20),
+    IN p_dt_nasc DATE,
+    IN p_email VARCHAR(60),
+    IN p_senha VARCHAR(50),
+    IN p_eus_id INT)
+BEGIN 
+	INSERT INTO TB_USUARIO (USU_CPF, USU_NOME_COMPLETO, USU_NOME_CARTAO, USU_TELEFONE, USU_DT_NASC, USU_EMAIL, USU_SENHA, EUS_ID)
+	VALUES (p_cpf, p_nome_completo, p_nome_cartao, p_telefone, p_dt_nasc, p_email, p_senha, p_eus_id);
+END $$
+DELIMITER ;
+
+CALL cadastrarUsuario('484.371.165-12', 'Pedro Nunes', 'PEDRO NUNES', '(11)94311-2191', '2006-10-09', 'pedro2@gmail.com', '12345678', 2);
+
+-- Cadastrar os tipos de Cartão
+DELIMITER  $$
+CREATE PROCEDURE cadastrarTipoCartao (
+    IN p_tca_nome VARCHAR(30)
+    )
+BEGIN 
+	INSERT INTO TB_TIPO_CARTAO (TCA_NOME)
+	VALUES (p_tca_nome);
+END $$
+DELIMITER ;
+
+CALL cadastrarTipoCartao('Vale-Transporte');
+
+-- Cadastrar os status do Cartão
+DELIMITER  $$
+CREATE PROCEDURE cadastrarStatusCartao (
+    IN p_sca_nome VARCHAR(30)
+    )
+BEGIN 
+	INSERT INTO TB_STATUS_CARTAO (SCA_NOME)
+	VALUES (p_sca_nome);
+END $$
+DELIMITER ;
+
+CALL cadastrarStatusCartao('Cancelado');
+
+-- Cadastra os endereços dos Pontos Físicos
+DELIMITER  $$
+CREATE PROCEDURE cadastrarEnderecoPontoFisico (
+	IN p_epf_cep VARCHAR(10),
+    IN p_epf_rua VARCHAR(70),
+    IN p_epf_numero VARCHAR(10),
+    IN p_epf_bairro VARCHAR(50),
+    IN p_epf_cidade VARCHAR(50),
+    IN p_epf_uf CHAR(2),
+    IN p_epf_complemento VARCHAR(100)
+)
+BEGIN 
+	INSERT INTO TB_END_PONTO_FISICO (EPF_CEP, EPF_RUA, EPF_NUMERO, EPF_BAIRRO, EPF_CIDADE, EPF_UF, EPF_COMPLEMENTO)
+	VALUES (p_epf_cep, p_epf_rua, p_epf_numero, p_epf_bairro, p_epf_cidade, p_epf_uf, p_epf_complemento);
+END $$
+DELIMITER ;
+
+CALL cadastrarEnderecoPontoFisico ('01001-000', 'Avenida Paulista', '1500', 'Bela Vista', 'São Paulo', 'SP', 'Andar 10, Conjunto 101');
+
+-- Cadastrar pontos físicos
+DELIMITER  $$
+CREATE PROCEDURE cadastrarPontoFisico (
+	IN p_pfi_id INT,
+    IN p_pfi_nome VARCHAR(50),
+    IN p_pfi_email VARCHAR(60),
+    IN p_pfi_telefone1 VARCHAR(20),
+    IN p_pfi_telefone2 VARCHAR(20),
+    IN p_epf_id INT
+)
+BEGIN 
+	INSERT INTO TB_PONTO_FISICO (PFI_ID, PFI_NOME, PFI_EMAIL, PFI_TELEFONE_1, PFI_TELEFONE_2, EPF_ID)
+	VALUES (p_pfi_id, p_pfi_nome, p_pfi_email, p_pfi_telefone1, p_pfi_telefone2, p_epf_id);
+END $$
+DELIMITER ;
+
+CALL cadastrarPontoFisico (101, 'Matriz São Paulo', 'matrizsp@empresa.com.br', '(11)3030-4040', '(11)3030-4041', 1);
+
+-- O sistema deve permitir que o usuário solicite a criação de novos cartões, com opção de escolha entre os tipos: comum, escolar, sênior ou vale-transporte.
+DELIMITER  $$
+CREATE PROCEDURE cadastrarCartao (
+    IN p_car_numero VARCHAR(16),
+    IN p_car_codigo VARCHAR(3),
+    IN p_car_dt_criacao DATE,
+    IN p_car_revalidacao DATE,
+    IN p_car_saldo DECIMAL(8,2),
+    IN p_tca_id INT,
+    IN p_pfi_id INT,
+    IN p_emp_cnpj VARCHAR(20),
+    IN p_usu_cpf VARCHAR(14)
+)
+BEGIN 
+	INSERT INTO TB_CARTAO (CAR_NUMERO, CAR_CODIGO, CAR_DT_CRIACAO, CAR_DT_REVALIDACAO, CAR_SALDO, TCA_ID, SCA_ID, PFI_ID, EMP_CNPJ, USU_CPF)
+	VALUES ( p_car_numero, p_car_codigo, p_car_dt_criacao, p_car_revalidacao, p_car_saldo, p_tca_id, 4, p_pfi_id, p_emp_cnpj, p_usu_cpf);
+END $$
+DELIMITER ;
+ 
+CALL cadastrarCartao ('59.09.00002790-2', '004', '2025-10-24', '2028-10-24', 50.00, 1, 1, 1, NULL, '123.456.789-00');
+
+-- Cadastro com Treggers
+
+-- Cadastro de uso do cartão
+DELIMITER $$
+CREATE PROCEDURE usarCartao (
+    IN P_HIS_VALOR DECIMAL(4,2),
+    IN P_HIS_LINHA_ONIBUS VARCHAR(50),
+    IN P_CAR_NUMERO VARCHAR(16)
+)
+BEGIN
+	INSERT INTO TB_HISTORICO_USO (HIS_DATA_HORA, HIS_VALOR, HIS_LINHA_ONIBUS, CAR_NUMERO)
+    VALUES (NOW(), P_HIS_VALOR, P_HIS_LINHA_ONIBUS, P_CAR_NUMERO);
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER atualizarSaldoCartaoPosUso AFTER INSERT
+ON TB_HISTORICO_USO
+FOR EACH ROW
+BEGIN
+	UPDATE TB_CARTAO SET CAR_SALDO = CAR_SALDO - NEW.HIS_VALOR
+    WHERE CAR_NUMERO = NEW.CAR_NUMERO;
+END $$
+DELIMITER ;
+
+CALL usarCartao('4.50', '801 - Refúgio dos Bandeirantes', '59.08.00002790-2');
+
+-- Cadastro de recargas
+DELIMITER $$
+CREATE PROCEDURE fazerRecarga (
+    IN P_REC_VALOR DECIMAL(8,2),
+    IN P_USU_CPF VARCHAR(14),
+    IN P_EMP_CNPJ VARCHAR(20),
+    IN P_CAR_NUMERO VARCHAR(16),
+    IN P_SRE_ID INT,
+    IN P_TRE_ID INT,
+    IN P_FPA_ID INT
+)
+BEGIN
+	INSERT INTO TB_RECARGA (REC_DATA_HORA, REC_VALOR, USU_CPF, EMP_CNPJ, CAR_NUMERO, SRE_ID, TRE_ID, FPA_ID)
+	VALUES (NOW(), P_REC_VALOR, P_USU_CPF, P_EMP_CNPJ, P_CAR_NUMERO, P_SRE_ID, P_TRE_ID, P_FPA_ID);
+END $$
+DELIMITER ;
+ 
+DELIMITER $$     
+     CREATE TRIGGER atualizarSaldoCartaoPosRecarga AFTER INSERT
+     ON TB_RECARGA
+     FOR EACH ROW
+BEGIN
+	 UPDATE TB_CARTAO SET CAR_SALDO = CAR_SALDO + NEW.REC_VALOR
+	 WHERE CAR_NUMERO = NEW.CAR_NUMERO;
+END $$ 
+DELIMITER ;
+
+CALL fazerRecarga('100.00', '484.371.165-12', null, '59.08.00002790-2', 1, 1, 2);
+
+-- UPDATE
+
+-- O sistema deve permitir que o usuário atualize seus dados pessoais (e-mail, telefone, senha etc.).
+DELIMITER $$
+CREATE PROCEDURE atualizarDadosUsuario (
+    IN p_cpf VARCHAR(14),
+    IN p_nome_completo VARCHAR(150),
+    IN p_nome_cartao VARCHAR(40),
+    IN p_telefone VARCHAR(20),
+    IN p_dt_nasc DATE,
+    IN p_email VARCHAR(60),
+    IN p_senha VARCHAR(50),
+    IN p_eus_id INT
+)
+BEGIN 
+    UPDATE TB_USUARIO 
+    SET 
+        USU_NOME_COMPLETO = p_nome_completo,
+        USU_NOME_CARTAO = p_nome_cartao,
+        USU_TELEFONE = p_telefone,
+        USU_DT_NASC = p_dt_nasc,
+        USU_EMAIL = p_email,
+        USU_SENHA = p_senha,
+        EUS_ID = p_eus_id
+    WHERE 
+        USU_CPF = p_cpf;
+
+END $$
+DELIMITER ;
+
+CALL atualizarDadosUsuario('484.371.165-12', 'Pedro Nunes Oliveira', 'PEDRO NUNES OLIVEIRA', '(11)94311-2191', '2006-10-09', 'pedro2@gmail.com', '12345678', 2);
+
+-- CONSULTAS
+
+-- O sistema deve permitir que o usuário visualize seus dados pessoais, exceto dados sensíveis (como a senha).
+DELIMITER $$
+CREATE PROCEDURE visualizarDadosPessoais (IN CPF VARCHAR(14))
+BEGIN
+	SELECT USU_NOME_COMPLETO, USU_TELEFONE, USU_DT_NASC, USU_EMAIL, EUS_RUA, EUS_NUMERO, EUS_BAIRRO, EUS_CIDADE, EUS_UF, EUS_COMPLEMENTO FROM TB_USUARIO 
+    INNER JOIN TB_END_USUARIO USING (EUS_ID) WHERE USU_CPF = CPF;
+END $$
+DELIMITER ;
+
+CALL visualizarDadosPessoais('474.371.265-12');
+
+-- O sistema deve permitir que o usuário visualize todos os cartões vinculados à sua conta.
+CREATE OR REPLACE VIEW informacoesSimplesCartao AS
+SELECT C.CAR_NUMERO, CAR_CODIGO, CAR_SALDO, USU_CPF, USU_NOME_CARTAO, TCA_NOME, HIS_DT_ULTIMO_USO FROM TB_CARTAO C
+INNER JOIN TB_USUARIO USING (USU_CPF)
+INNER JOIN TB_TIPO_CARTAO USING (TCA_ID)
+LEFT JOIN (
+	SELECT CAR_NUMERO, MAX(HIS_DATA_HORA) AS HIS_DT_ULTIMO_USO FROM TB_HISTORICO_USO GROUP BY CAR_NUMERO
+) H ON H.CAR_NUMERO = C.CAR_NUMERO;
+
+DELIMITER $$
+CREATE PROCEDURE listarCartoesPorUsuario (IN CPF VARCHAR(14))
+BEGIN
+	SELECT CAR_NUMERO, CAR_CODIGO, CAR_SALDO, USU_NOME_CARTAO, TCA_NOME, HIS_DT_ULTIMO_USO FROM informacoesSimplesCartao WHERE USU_CPF = CPF;
+END $$
+DELIMITER ;
+
+CALL listarCartoesPorUsuario('474.371.265-12');
+
+-- O sistema deve permitir que o usuário visualize os dados detalhados de um cartão específico (tipo, data de criação, status, etc.).
+CREATE OR REPLACE VIEW informacoesCompletasCartao AS
+SELECT C.CAR_NUMERO, CAR_CODIGO, CAR_DT_CRIACAO, CAR_DT_REVALIDACAO, CAR_SALDO, USU_NOME_CARTAO, TCA_NOME, SCA_NOME, HIS_DT_ULTIMO_USO FROM TB_CARTAO C
+INNER JOIN TB_USUARIO USING (USU_CPF)
+INNER JOIN TB_TIPO_CARTAO USING (TCA_ID)
+INNER JOIN  TB_STATUS_CARTAO USING (SCA_ID)
+LEFT JOIN TB_EMPRESA USING (EMP_CNPJ)
+LEFT JOIN (
+	SELECT CAR_NUMERO, MAX(HIS_DATA_HORA) AS HIS_DT_ULTIMO_USO FROM TB_HISTORICO_USO GROUP BY CAR_NUMERO
+) H ON H.CAR_NUMERO = C.CAR_NUMERO;
+
+DELIMITER $$
+CREATE PROCEDURE listarDadosCompletosDoCartao (IN NUMERO VARCHAR(16))
+BEGIN
+	SELECT CAR_NUMERO, CAR_CODIGO, CAR_DT_CRIACAO, CAR_DT_REVALIDACAO, CAR_SALDO, USU_NOME_CARTAO, TCA_NOME, SCA_NOME, HIS_DT_ULTIMO_USO FROM informacoesCompletasCartao
+    WHERE CAR_NUMERO = NUMERO;
+END $$
+DELIMITER ;
+
+CALL listarDadosCompletosDoCartao('59.08.00002790-2');
+
+-- O sistema deve permitir que o usuário consulte o local de retirada do cartão recém criado.
+DELIMITER $$
+CREATE PROCEDURE consultarLocalDeRetirada (IN NUMERO VARCHAR(16))
+BEGIN
+	SELECT PFI_NOME, PFI_EMAIL, PFI_TELEFONE_1, PFI_TELEFONE_2, EPF_CEP, EPF_RUA, EPF_NUMERO, EPF_BAIRRO, EPF_CIDADE, EPF_UF FROM TB_CARTAO INNER JOIN TB_PONTO_FISICO USING (PFI_ID) 
+	INNER JOIN TB_END_PONTO_FISICO USING (EPF_ID) 
+	INNER JOIN TB_STATUS_CARTAO USING(SCA_ID) 
+	WHERE SCA_NOME = 'Pronto para coleta' AND CAR_NUMERO = NUMERO;
+END $$
+DELIMITER ;
+
+CALL consultarLocalDeRetirada('59.08.00002790-2');
+
+-- o sistema deve permitir que o usuário consulte o histórico completo de uso de cada cartão (data, hora, valor da tarifa e linha).
+CREATE OR REPLACE VIEW vw_historico_completo AS
+SELECT
+  h.HIS_ID,
+  h.CAR_NUMERO,
+  h.HIS_DATA_HORA,
+  h.HIS_VALOR,
+  h.HIS_LINHA_ONIBUS
+FROM TB_HISTORICO_USO h
+JOIN TB_CARTAO c ON h.CAR_NUMERO = c.CAR_NUMERO;
+
+DELIMITER $$ 
+CREATE PROCEDURE p_historico_completo (IN p_numero VARCHAR(16))
+BEGIN
+    SELECT
+        HIS_ID,
+        CAR_NUMERO,
+        HIS_DATA_HORA,
+        HIS_VALOR,
+        HIS_LINHA_ONIBUS
+    FROM vw_historico_completo
+    WHERE CAR_NUMERO = p_numero
+    ORDER BY h.HIS_DATA_HORA DESC;
+END $$
+DELIMITER ;
+
+CALL p_historico_completo('59.08.00002790-2');
+ 
+ -- O sistema deve permitir que o usuário consulte o histórico de recargas de cada cartão.
+DELIMITER $$
+CREATE PROCEDURE sp_recargas_por_cartao(IN p_numero VARCHAR(16))
+BEGIN
+    SELECT
+        r.REC_ID,
+        r.CAR_NUMERO,
+        r.REC_DATA_HORA,
+        r.REC_VALOR,
+        r.USU_CPF,
+        r.EMP_CNPJ,
+        s.SRE_NOME AS STATUS_RECARGA,
+        tr.TRE_NOME AS TIPO_REALIZADOR,
+        f.FPA_NOME AS FORMA_PAGAMENTO
+    FROM TB_RECARGA r
+    LEFT JOIN TB_STATUS_RECARGA s ON r.SRE_ID = s.SRE_ID
+    LEFT JOIN TB_TIPO_REALIZADOR tr ON r.TRE_ID = tr.TRE_ID
+    LEFT JOIN TB_FORMA_PAGAMENTO f ON r.FPA_ID = f.FPA_ID
+    WHERE r.CAR_NUMERO = p_numero
+    ORDER BY r.REC_DATA_HORA DESC;
+END $$
+DELIMITER ;
+ 
+CALL sp_recargas_por_cartao('59.08.00002790-2');
