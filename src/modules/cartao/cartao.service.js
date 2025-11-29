@@ -1,5 +1,5 @@
 import prisma from "../../config/prismaClient.js";
-import notificationService from "../../services/notification.service.js";
+import notificationService from "../notificacao/notificacao.service.js";
 import { Decimal } from "@prisma/client/runtime/library";
 
 const CARD_BALANCE_THRESHOLD = parseFloat(process.env.CARD_BALANCE_THRESHOLD || "15.00"); 

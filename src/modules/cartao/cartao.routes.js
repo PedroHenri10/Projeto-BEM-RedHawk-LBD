@@ -1,5 +1,5 @@
 import { Router } from "express";
-import cardController from "./card.controller.js";
+import cardController from "./cartao.controller.js";
 import auth from "../../middlewares/auth.js";
 
 const router = Router();

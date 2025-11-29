@@ -1,5 +1,5 @@
 import prisma from "../../config/prismaClient.js";
-import cardService from "../card/card.service.js"; // Para verificar e notificar saldo
+import cardService from "../cartao/cartao.service.js"; 
 import { Decimal } from "@prisma/client/runtime/library";
 
 const rechargeService = {

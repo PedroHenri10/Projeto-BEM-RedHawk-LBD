@@ -1,4 +1,4 @@
-import cardService from "./card.service.js";
+import cardService from "./cartao.service.js";
 
 const cardController = {
   // RF007
