@@ -25,6 +25,18 @@ const cardController = {
     }
   },
 
+  // RF012
+  cancelCard: async (req, res) => {
+    try {
+      const { id, type } = req.user;
+      const { cardId } = req.params;
+      const canceledCard = await cardService.cancelCard(cardId, id, type);
+      res.status(200).json({ message: "Cartão cancelado com sucesso!", card: canceledCard });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  },
+
   
 };
 
