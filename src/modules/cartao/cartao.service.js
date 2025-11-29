@@ -167,7 +167,64 @@ const cardService = {
     }
   },
 
-  
+  // RF016 & RF017: Consulta e Ordenação do Histórico de Uso
+  getCardUsageHistory: async (cardId, userId, userType, orderBy, orderDirection) => {
+    try {
+      const card = await prisma.tB_CARTAO.findUnique({
+        where: { CAR_NUMERO: cardId },
+      });
+
+      if (!card) {
+        throw new Error("Cartão não encontrado.");
+      }
+
+      if (
+        (userType === "user" && card.USU_CPF !== userId) ||
+        (userType === "company" && card.EMP_CNPJ !== userId)
+      ) {
+        throw new Error("Você não tem permissão para visualizar o histórico deste cartão.");
+      }
+
+      const validOrderBy = ["HIS_DATA_HORA", "HIS_VALOR"];
+      const validOrderDirection = ["asc", "desc"];
+
+      const finalOrderBy = validOrderBy.includes(orderBy) ? orderBy : "HIS_DATA_HORA";
+      const finalOrderDirection = validOrderDirection.includes(orderDirection) ? orderDirection : "desc";
+
+      const history = await prisma.tB_HISTORICO_USO.findMany({
+        where: { CAR_NUMERO: cardId },
+        orderBy: {
+          [finalOrderBy]: finalOrderDirection,
+        },
+      });
+
+      return history;
+    } catch (error) {
+      console.error("Erro ao consultar histórico de uso do cartão:", error);
+      throw new Error(error.message || "Erro ao consultar histórico de uso do cartão.");
+    }
+  },
+
+  checkAndNotifyLowBalance: async (cardId) => {
+    try {
+      const card = await prisma.tB_CARTAO.findUnique({
+        where: { CAR_NUMERO: cardId },
+        select: {
+          CAR_SALDO: true,
+        },
+      });
+
+      if (card && card.CAR_SALDO.toNumber() <= CARD_BALANCE_THRESHOLD) {
+        await notificationService.sendLowBalanceNotification(
+          cardId,
+          card.CAR_SALDO.toNumber(),
+          CARD_BALANCE_THRESHOLD
+        );
+      }
+    } catch (error) {
+      console.error(`Erro ao verificar e notificar saldo baixo para o cartão ${cardId}:`, error);
+    }
+  },
 };
 
 export default cardService;
