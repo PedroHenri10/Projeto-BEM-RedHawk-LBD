@@ -59,6 +59,41 @@ const cardService = {
     }
   },
 
+  // RF009: O sistema deve permitir que o usuário visualize os dados detalhados de um cartão específico
+  getCardDetails: async (cardId, userId, userType) => {
+    try {
+      const card = await prisma.tB_CARTAO.findUnique({
+        where: { CAR_NUMERO: cardId },
+        include: {
+          tipoCartao: true,
+          statusCartao: true,
+          historicos: {
+            orderBy: { HIS_DATA_HORA: "desc" },
+            take: 5, 
+          },
+        },
+      });
+
+      if (!card) {
+        throw new Error("Cartão não encontrado.");
+      }
+
+      if (
+        (userType === "user" && card.USU_CPF !== userId) ||
+        (userType === "company" && card.EMP_CNPJ !== userId)
+      ) {
+        throw new Error("Você não tem permissão para visualizar este cartão.");
+      }
+
+      const { CAR_CODIGO, ...cardWithoutCode } = card;
+
+      return cardWithoutCode;
+    } catch (error) {
+      console.error("Erro ao buscar detalhes do cartão:", error);
+      throw new Error(error.message || "Erro ao buscar detalhes do cartão.");
+    }
+  },
+
   
 };
 
