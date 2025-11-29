@@ -94,6 +94,44 @@ const cardService = {
     }
   },
 
+  // RF012: O sistema deve permitir que o usuário cancele um cartão.
+  cancelCard: async (cardId, userId, userType) => {
+    try {
+      const card = await prisma.tB_CARTAO.findUnique({
+        where: { CAR_NUMERO: cardId },
+      });
+
+      if (!card) {
+        throw new Error("Cartão não encontrado.");
+      }
+
+      if (
+        (userType === "user" && card.USU_CPF !== userId) ||
+        (userType === "company" && card.EMP_CNPJ !== userId)
+      ) {
+        throw new Error("Você não tem permissão para cancelar este cartão.");
+      }
+
+      const canceledStatus = await prisma.tB_STATUS_CARTAO.findFirst({
+        where: { SCA_NOME: "Cancelado" },
+      });
+
+      if (!canceledStatus) {
+        throw new Error("Status 'Cancelado' não encontrado para cartões.");
+      }
+
+      const updatedCard = await prisma.tB_CARTAO.update({
+        where: { CAR_NUMERO: cardId },
+        data: { SCA_ID: canceledStatus.SCA_ID },
+      });
+
+      return updatedCard;
+    } catch (error) {
+      console.error("Erro ao cancelar cartão:", error);
+      throw new Error(error.message || "Erro ao cancelar cartão.");
+    }
+  },
+
   
 };
 
