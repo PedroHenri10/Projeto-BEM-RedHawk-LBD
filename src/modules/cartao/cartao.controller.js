@@ -13,6 +13,18 @@ const cardController = {
     }
   },
 
+  // RF009
+  getCardDetails: async (req, res) => {
+    try {
+      const { id, type } = req.user;
+      const { cardId } = req.params;
+      const cardDetails = await cardService.getCardDetails(cardId, id, type);
+      res.status(200).json({ card: cardDetails });
+    } catch (error) {
+      res.status(404).json({ error: error.message });
+    }
+  },
+
   
 };
 
