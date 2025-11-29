@@ -132,6 +132,41 @@ const cardService = {
     }
   },
 
+  // RF015: O sistema deve permitir que o usuário consulte o saldo atual de cada cartão vinculado à sua conta.
+  getCardBalance: async (userId, userType) => {
+    try {
+      let cards;
+      if (userType === "user") {
+        cards = await prisma.tB_CARTAO.findMany({
+          where: { USU_CPF: userId },
+          select: {
+            CAR_NUMERO: true,
+            CAR_SALDO: true,
+            tipoCartao: { select: { TCA_NOME: true } },
+            statusCartao: { select: { SCA_NOME: true } },
+          },
+        });
+      } else if (userType === "company") {
+        cards = await prisma.tB_CARTAO.findMany({
+          where: { EMP_CNPJ: userId },
+          select: {
+            CAR_NUMERO: true,
+            CAR_SALDO: true,
+            tipoCartao: { select: { TCA_NOME: true } },
+            statusCartao: { select: { SCA_NOME: true } },
+          },
+        });
+      } else {
+        throw new Error("Tipo de usuário inválido.");
+      }
+
+      return cards;
+    } catch (error) {
+      console.error("Erro ao consultar saldo dos cartões:", error);
+      throw new Error(error.message || "Erro ao consultar saldo dos cartões.");
+    }
+  },
+
   
 };
 
