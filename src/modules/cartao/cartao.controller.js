@@ -53,7 +53,7 @@ const cardController = {
     try {
       const { id, type } = req.user;
       const { cardId } = req.params;
-      const { orderBy, orderDirection } = req.query; // Ex: ?orderBy=HIS_DATA_HORA&orderDirection=asc
+      const { orderBy, orderDirection } = req.query; 
       const history = await cardService.getCardUsageHistory(cardId, id, type, orderBy, orderDirection);
       res.status(200).json({ history });
     } catch (error) {
