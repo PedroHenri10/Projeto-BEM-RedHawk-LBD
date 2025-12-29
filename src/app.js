@@ -1,5 +1,6 @@
 import express from "express";
 import userRoutes from "./modules/user/user.routes.js";
+import cardRoutes from "./modules/cartao/cartao.routes.js";
 import rechargeRoutes from "./modules/recarga/recarga.routes.js"; 
 import cors from "cors";
 

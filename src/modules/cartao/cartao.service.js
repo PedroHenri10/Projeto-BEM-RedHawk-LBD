@@ -1,6 +1,6 @@
-import prisma from "../../config/prismaClient.js";
 import notificationService from "../notificacao/notificacao.service.js";
-import { Decimal } from "@prisma/client/runtime/library";
+import prisma from "../../config/prismaClient.js";
+import { Prisma } from "@prisma/client"; 
 
 const CARD_BALANCE_THRESHOLD = parseFloat(process.env.CARD_BALANCE_THRESHOLD || "15.00"); 
 
@@ -38,7 +38,7 @@ const cardService = {
         CAR_CODIGO: cardCode,
         CAR_DT_CRIACAO: cardCreationDate,
         CAR_DT_REVALIDACAO: cardRevalidationDate,
-        CAR_SALDO: new Decimal(0.00), 
+        CAR_SALDO: new Prisma.Decimal(0.00),  
         TCA_ID: type.TCA_ID,
         SCA_ID: activeStatus.SCA_ID,
       };

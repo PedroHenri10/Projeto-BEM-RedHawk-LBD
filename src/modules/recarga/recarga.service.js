@@ -1,6 +1,6 @@
 import prisma from "../../config/prismaClient.js";
+import { Prisma } from "@prisma/client"; 
 import cardService from "../cartao/cartao.service.js"; 
-import { Decimal } from "@prisma/client/runtime/library";
 
 const rechargeService = {
   // RF020: O sistema deve permitir que o usuário recarregue um cartão do tipo comum, sendo próprio ou de terceiros.
@@ -26,7 +26,7 @@ const rechargeService = {
         throw new Error("Não é possível recarregar um cartão que não esteja 'Ativo'.");
       }
 
-      const rechargeValue = new Decimal(value);
+      const rechargeValue = new Prisma.Decimal(value);
       if (rechargeValue.isNegative() || rechargeValue.isZero()) {
         throw new Error("O valor da recarga deve ser positivo.");
       }

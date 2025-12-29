@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import prisma from "../config/prismaClient.js";
+import prisma from "../../config/prismaClient.js";
 
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
