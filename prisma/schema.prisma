@@ -93,7 +93,7 @@ model TB_EMPRESA {
   EMP_EMAIL        String @unique @db.VarChar(60)
   EMP_TELEFONE     String? @unique @db.VarChar(20)
   EMP_SITE         String? @db.VarChar(70)
-  EMP_SENHA        String  @db.VarChar(50)
+  EMP_SENHA        String  @db.VarChar(255)
   EEM_ID           Int?
 
   endereco TB_END_EMPRESA? @relation(fields: [EEM_ID], references: [EEM_ID])
